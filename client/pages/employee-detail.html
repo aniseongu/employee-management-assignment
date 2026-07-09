@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>직원 상세</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <header>
+        <h1>직원관리</h1>
+    </header>
+    <main>
+        <section>
+            <div class="toolbar">
+                <h2>직원 상세 / 수정</h2>
+                <a class="btn" href="/">목록으로</a>
+            </div>
+            <p id="load-error" class="form-error" style="display:none;"></p>
+
+            <div id="detail-view">
+                <p><strong>사번:</strong> <span id="view-empNo"></span></p>
+                <p><strong>재직상태:</strong> <span id="view-status"></span></p>
+                <p><strong>입사일:</strong> <span id="view-hireDate"></span></p>
+            </div>
+
+            <p id="form-error" class="form-error" style="display:none;"></p>
+            <form id="employee-edit-form">
+                <div class="form-row">
+                    <label for="empName">이름 *</label>
+                    <input type="text" id="empName" name="empName" required />
+                    <div class="field-error" id="error-empName"></div>
+                </div>
+                <div class="form-row">
+                    <label for="email">이메일 *</label>
+                    <input type="email" id="email" name="email" required />
+                    <div class="field-error" id="error-email"></div>
+                </div>
+                <div class="form-row">
+                    <label for="phone">전화번호</label>
+                    <input type="text" id="phone" name="phone" />
+                    <div class="field-error" id="error-phone"></div>
+                </div>
+                <div class="form-row">
+                    <label for="deptId">부서 *</label>
+                    <select id="deptId" name="deptId" required></select>
+                    <div class="field-error" id="error-deptId"></div>
+                </div>
+                <div class="form-row">
+                    <label for="positionId">직책 *</label>
+                    <select id="positionId" name="positionId" required></select>
+                    <div class="field-error" id="error-positionId"></div>
+                </div>
+                <div class="form-row">
+                    <label for="managerId">직속상사</label>
+                    <select id="managerId" name="managerId">
+                        <option value="">없음</option>
+                    </select>
+                    <div class="field-error" id="error-managerId"></div>
+                </div>
+                <div class="form-row">
+                    <label for="memo">메모</label>
+                    <textarea id="memo" name="memo" rows="3"></textarea>
+                    <div class="field-error" id="error-memo"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">수정 저장</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>재직상태 변경</h2>
+            <p id="status-error" class="form-error" style="display:none;"></p>
+            <div id="status-actions" class="status-actions"></div>
+        </section>
+
+        <section>
+            <h2>상태 변경 이력</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>변경일</th>
+                        <th>변경유형</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body"></tbody>
+            </table>
+            <p id="history-empty" class="muted" style="display:none;">변경 이력이 없습니다.</p>
+        </section>
+    </main>
+    <script type="module" src="/js/employee-detail.js"></script>
+</body>
+</html>
