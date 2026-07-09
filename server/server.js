@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -6,6 +7,7 @@ import { env } from './config/env.js';
 import { logger } from './lib/logger.js';
 import { pool } from './lib/db.js';
 import routes from './routes/index.js';
+import pageRoutes from './routes/pageRoutes.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
@@ -19,6 +21,8 @@ app.get('/health', (req, res) => {
     res.json({ success: true, data: { status: 'ok' }, message: null });
 });
 
+app.use(express.static(path.join(process.cwd(), 'client/public')));
+app.use(pageRoutes);
 app.use(routes);
 
 app.use(notFoundHandler);

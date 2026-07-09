@@ -5,3 +5,10 @@ export async function findPositionById(db, positionId) {
     );
     return rows[0] || null;
 }
+
+export async function listAll(db) {
+    const { rows } = await db.query(
+        `select POSITION_ID, POSITION_NAME, POSITION_LEVEL from T_POSITION where USE_YN = 'Y' order by POSITION_LEVEL, POSITION_ID`,
+    );
+    return rows;
+}
