@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>직원 목록</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <header>
+        <h1>직원관리</h1>
+    </header>
+    <main>
+        <section>
+            <div class="toolbar">
+                <h2>직원 목록</h2>
+                <a class="btn btn-primary" href="/register">직원 등록</a>
+            </div>
+            <div class="filter-row">
+                <input type="text" id="filter-name" placeholder="이름 검색" />
+                <select id="filter-dept">
+                    <option value="">전체 부서</option>
+                </select>
+                <select id="filter-status">
+                    <option value="">전체 상태</option>
+                    <option value="ACTIVE">재직</option>
+                    <option value="LEAVE">휴직</option>
+                    <option value="RESIGNED">퇴직</option>
+                </select>
+            </div>
+            <table id="employee-table">
+                <thead>
+                    <tr>
+                        <th>사번</th>
+                        <th>이름</th>
+                        <th>이메일</th>
+                        <th>부서</th>
+                        <th>직책</th>
+                        <th>직속상사</th>
+                        <th>상태</th>
+                        <th>입사일</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="employee-table-body"></tbody>
+            </table>
+            <p id="employee-list-empty" class="muted" style="display:none;">등록된 직원이 없습니다.</p>
+        </section>
+
+        <section>
+            <h2>조직 구조</h2>
+            <p class="muted">부서별로 직원을 묶고, 직속상사-부하 관계를 들여쓰기로 표시합니다.</p>
+            <div id="org-tree" class="org-tree"></div>
+        </section>
+    </main>
+    <script type="module" src="/js/employee-list.js"></script>
+</body>
+</html>
