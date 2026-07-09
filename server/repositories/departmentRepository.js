@@ -5,3 +5,10 @@ export async function findDepartmentById(db, deptId) {
     );
     return rows[0] || null;
 }
+
+export async function listAll(db) {
+    const { rows } = await db.query(
+        `select DEPT_ID, DEPT_NAME, PARENT_DEPT_ID from T_DEPARTMENT where USE_YN = 'Y' order by DEPT_ID`,
+    );
+    return rows;
+}
