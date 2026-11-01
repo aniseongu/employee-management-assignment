@@ -1,103 +1,117 @@
-# 직원관리 시스템
+<div align="center">
 
-ERD를 바탕으로 PostgreSQL의 조직 데이터를 사용하는 직원관리 웹사이트입니다. 직원 목록/등록/상세·수정, 재직상태 변경과 이력 저장, 부서·직책·직속상사를 통한 조직 구조 표현을 다룹니다.
+# 직원관리 웹
 
-## 기술 스택
+ERD를 바탕으로 직원 목록·등록·수정과 재직 상태 변경 이력을 관리하는 웹 서비스
 
-- **Backend**: Node.js(ESM) + Express + [`pg`](https://node-postgres.com/)(직접 연결, ORM 미사용) + Zod(validation) + winston(logging)
-- **Frontend**: 프레임워크 없이 Vanilla HTML/CSS + `fetch` 기반 JS (`client/`), Express `static`으로 서빙
-- **DB**: PostgreSQL 16 (Docker Compose)
-- **계층 구조**: Router → Controller → Service → Repository
+![Node.js](https://img.shields.io/badge/Node.js-ESM-124532?logo=nodedotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-124532?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker%20Compose-555555?logo=docker&logoColor=white)
 
-## 프로젝트 구조
+</div>
 
-```text
-ddl/                    스키마 DDL
-  functions/F_AUDIT_LOG.sql
-  tables/{T_DEPARTMENT,T_POSITION,T_EMPLOYEE,T_EMPLOYMENT_HISTORY}.sql
-  run_all.sql            스키마 전체 적용 스크립트
-  seed.sql               (선택) 로컬 검증용 샘플 부서/직책 데이터
+## 소개
 
-server/                 Express 백엔드
-  routes/               employeeRoutes, departmentRoutes, positionRoutes, pageRoutes
-  controllers/ services/ repositories/   4계층 구조
-  schemas/               Zod validation 스키마
-  server.js              앱 엔트리 (정적 서빙 + 라우팅)
+부서, 직책, 직속상사로 이어진 조직 데이터를 PostgreSQL에 두고, 직원 정보와 재직 상태(재직·휴직·퇴직)를 웹에서 관리합니다. 상태가 바뀔 때마다 이력을 남기고, 허용되지 않는 변경은 서버에서 막습니다.
 
-client/                 프론트엔드 (정적 파일)
-  pages/                 employee-list.html, employee-form.html, employee-detail.html
-  public/{css,js}/       공통 스타일, api.js(fetch 래퍼), 화면별 스크립트
+## 주요 기능
 
-docs/
-  guides/                ERD 가이드
-  reports/               검증 체크리스트
-```
+| 기능 | 내용 |
+| --- | --- |
+| 직원 목록 | 부서명·직책명·직속상사를 함께 보여 줍니다. 검색과 필터, 부서별로 묶어 상사-부하 관계를 들여쓰는 조직 구조 보기를 제공합니다. |
+| 직원 등록·수정 | 사번 중복은 409로, 필수값 누락·이메일 형식 오류와 없는 부서·직책·직속상사, 자기 자신을 직속상사로 지정하는 요청은 400으로 막습니다. |
+| 재직 상태 변경 | 허용되는 전이를 표(`ALLOWED_TRANSITIONS`)로 정했습니다. `재직↔휴직`, `재직·휴직→퇴직`만 허용하고 퇴직은 되돌릴 수 없습니다. 같은 상태로의 변경과 입사일보다 이른 퇴직일도 막습니다. |
+| 변경 이력 | 상태 변경과 이력 저장을 직원 행을 잠근(`FOR UPDATE`) 하나의 트랜잭션에서 처리하고, 오류가 나면 롤백합니다. 상세 화면에서 이력을 볼 수 있습니다. |
+| 날짜 처리 | KST 환경에서 `pg`가 `date` 값을 하루 밀어 읽는 문제를 발견해, 쿼리에서 `to_char(..., 'YYYY-MM-DD')` 문자열로 반환하도록 고쳤습니다. |
 
-## ERD 요약
+## 기술 구성
 
-4개 테이블로 조직 구조를 표현합니다(자세한 내용은 [`docs/guides/employee-erd-guide.md`](docs/guides/employee-erd-guide.md) 참고).
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-3E67B1?logo=zod&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
 
-- `T_DEPARTMENT` — 부서 (자기참조로 상위 부서 표현)
-- `T_POSITION` — 직책
-- `T_EMPLOYEE` — 직원 (부서/직책 FK, `MANAGER_ID` 자기참조로 직속상사 표현)
-- `T_EMPLOYMENT_HISTORY` — 재직상태 변경 이력 (`EMP_ID` FK, `CHANGE_TYPE`)
+| 구분 | 사용 기술 |
+| --- | --- |
+| 백엔드 | Node.js(ESM), Express, `pg`(ORM 없이 직접 쿼리), Zod(입력 검증), winston(로그), helmet·cors |
+| 프론트엔드 | 프레임워크 없이 HTML·CSS·JavaScript(`fetch`), Express `static`으로 제공 |
+| DB | PostgreSQL 16(Docker Compose) |
+| 구조 | Router → Controller → Service → Repository 4계층 |
 
-재직상태는 `ACTIVE`(재직) / `LEAVE`(휴직) / `RESIGNED`(퇴직) 3가지이며, 허용되는 전환은 `ACTIVE↔LEAVE`, `ACTIVE/LEAVE→RESIGNED`뿐이고 `RESIGNED`는 종단 상태입니다.
+## 데이터 구조
 
-## 로컬 실행 방법 (WSL / Linux)
+4개 테이블로 조직을 표현합니다. 자세한 내용은 [`docs/guides/employee-erd-guide.md`](docs/guides/employee-erd-guide.md)에 있습니다.
+
+| 테이블 | 내용 |
+| --- | --- |
+| `T_DEPARTMENT` | 부서. 자기참조로 상위 부서를 표현 |
+| `T_POSITION` | 직책 |
+| `T_EMPLOYEE` | 직원. 부서·직책 FK, `MANAGER_ID` 자기참조로 직속상사 표현 |
+| `T_EMPLOYMENT_HISTORY` | 재직 상태 변경 이력(`CHANGE_TYPE`: 휴직·복직·퇴직) |
+
+생성·수정 시각은 `F_AUDIT_LOG` 트리거 함수가 채웁니다.
+
+## 실행 방법 (WSL / Linux)
+
+Node.js 18 이상과 Docker가 필요합니다.
 
 ```bash
-# 0. node v18+ 필요 (ESM). nvm으로 관리 중이면:
-export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
-
-# 1. PostgreSQL 기동
+# 1. PostgreSQL 실행
 docker compose up -d postgres
 
-# 2. DDL 적용 (최초 1회, 컨테이너를 새로 만든 경우)
+# 2. 스키마 적용(처음 한 번)
 docker compose cp ddl postgres:/ddl
 docker compose exec -T -w /ddl postgres psql -U emko -d emko -v ON_ERROR_STOP=1 -f run_all.sql
 
-# 3. (선택) 로컬 검증용 부서/직책 샘플 데이터 — 재실행해도 중복 insert 안 됨
+# 3. (선택) 확인용 부서·직책 샘플 데이터. 다시 실행해도 중복으로 들어가지 않습니다
 docker compose exec -T -w /ddl postgres psql -U emko -d emko -f seed.sql
 
-# 4. 의존성 설치 및 서버 실행
+# 4. 서버 실행
 npm install
 npm run dev   # 또는 npm start
 ```
 
-서버가 뜨면 아래 주소로 접속합니다.
+DB 연결과 포트는 `.env.example`을 `.env`로 복사해 설정합니다(`.env`는 커밋하지 않습니다).
 
-| 화면 | URL |
-|---|---|
-| 직원 목록 (검색/필터, 조직 구조 뷰 포함) | `http://localhost:3000/` |
+| 화면 | 주소 |
+| --- | --- |
+| 직원 목록(검색·필터, 조직 구조 보기) | `http://localhost:3000/` |
 | 직원 등록 | `http://localhost:3000/register` |
-| 직원 상세/수정 (상태 변경 UI, 이력 표시) | `http://localhost:3000/detail?id=<emp_id>` |
+| 직원 상세·수정(상태 변경, 이력) | `http://localhost:3000/detail?id=<emp_id>` |
 
-> 부서/직책 데이터가 없으면 등록 화면의 select가 비어 있습니다. 위 3번 단계로 샘플 데이터를 넣거나, `T_DEPARTMENT`/`T_POSITION`에 직접 최소 1건 이상 입력해야 합니다.
-
-DB 연결/포트 등 환경 변수는 `.env.example`을 참고해 `.env`로 복사해 사용합니다(`.env`는 git에 커밋되지 않습니다).
+부서·직책 데이터가 없으면 등록 화면의 선택 목록이 비어 있습니다. 3번 샘플 데이터를 넣거나 두 테이블에 직접 한 건 이상 넣어 주세요.
 
 ## API
 
 | Method | Path | 설명 |
-|---|---|---|
-| GET | `/employees` | 직원 목록 (부서명/직책명/상사명 join) |
+| --- | --- | --- |
+| GET | `/employees` | 직원 목록(부서·직책·직속상사 이름 포함) |
 | POST | `/employees` | 직원 등록 |
-| GET | `/employees/:id` | 직원 상세 (상태 변경 이력 `history` 포함) |
+| GET | `/employees/:id` | 직원 상세(상태 변경 이력 `history` 포함) |
 | PATCH | `/employees/:id` | 직원 정보 수정 |
-| PATCH | `/employees/:id/status` | 재직상태 변경 (이력 저장, 트랜잭션) |
+| PATCH | `/employees/:id/status` | 재직 상태 변경(이력 저장, 트랜잭션) |
 | GET | `/departments` | 부서 목록 |
 | GET | `/positions` | 직책 목록 |
-| GET | `/health` | 헬스 체크 |
+| GET | `/health` | 상태 확인 |
 
-응답 공통 형식: `{ success, data, message, errors? }`. 요청 body는 camelCase(`empNo`, `deptId` 등), 응답 데이터는 DB 컬럼명 그대로인 snake_case(`emp_no`, `dept_id` 등)입니다.
+응답은 `{ success, data, message, errors? }` 형식입니다. 요청 본문은 camelCase(`empNo`, `deptId`), 응답 데이터는 DB 컬럼명 그대로의 snake_case(`emp_no`, `dept_id`)입니다.
 
-## 문서
+## 폴더 구조
 
-- 검증 체크리스트: [`docs/reports/result-checklist.md`](docs/reports/result-checklist.md)
+```text
+ddl/        스키마 DDL(테이블 4개, F_AUDIT_LOG, run_all.sql, seed.sql)
+server/     Express 백엔드(routes, controllers, services, repositories, schemas)
+client/     화면 3개(employee-list, employee-form, employee-detail)와 공통 CSS·JS
+docs/       ERD 가이드와 검증 체크리스트
+```
 
-## 범위 / 한계
+## 검증과 한계
 
-- 로그인·권한, 배포, 외부 API 연동, 파일 업로드, 복잡한 조직도 시각화 라이브러리, 대용량 페이지네이션 고도화는 요구사항 제외 범위로 구현하지 않았습니다.
-- 검색/필터는 백엔드 API 변경 없이 클라이언트에서 이미 불러온 목록을 필터링하는 방식입니다.
-- 이 저장소를 다룬 개발 환경에는 브라우저 자동화 도구가 없어, 화면 클릭 검증은 curl + `psql` 기반 API/DB 레벨 검증으로 대체했습니다. 자세한 내용은 [`docs/reports/result-checklist.md`](docs/reports/result-checklist.md)를 참고하세요.
+- curl과 `psql`로 API와 DB를 확인했습니다. 등록 2건, 수정, 상태 변경 3회(휴직·복직·퇴직)가 이력 테이블에 1건씩 저장되고, 퇴직→재직 요청은 400으로 막히는 것을 DB에서 직접 확인했습니다. 자세한 내용은 [`docs/reports/result-checklist.md`](docs/reports/result-checklist.md)에 있습니다.
+- 브라우저 클릭 검증과 화면 캡처는 하지 않았습니다.
+- 검색·필터는 이미 불러온 목록을 화면에서 거르는 방식입니다.
+- 로그인·권한, 배포, 대용량 페이지네이션은 범위에 넣지 않았습니다.
