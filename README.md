@@ -14,6 +14,17 @@ ERD를 바탕으로 직원 목록·등록·수정과 재직 상태 변경 이력
 
 부서, 직책, 직속상사로 이어진 조직 데이터를 PostgreSQL에 두고, 직원 정보와 재직 상태(재직·휴직·퇴직)를 웹에서 관리합니다. 상태가 바뀔 때마다 이력을 남기고, 허용되지 않는 변경은 서버에서 막습니다.
 
+<p align="center">
+  <img src="docs/screenshots/employee-list.png" width="49%" alt="직원 목록">
+  <img src="docs/screenshots/employee-detail.png" width="49%" alt="직원 상세와 상태 변경 이력">
+</p>
+<p align="center">
+  <img src="docs/screenshots/org-structure.png" width="49%" alt="조직 구조 보기">
+  <img src="docs/screenshots/employee-form.png" width="49%" alt="직원 등록">
+</p>
+
+화면의 직원·부서 데이터는 캡처용 가상 데이터입니다.
+
 ## 주요 기능
 
 | 기능 | 내용 |
@@ -112,6 +123,6 @@ docs/       ERD 가이드와 검증 체크리스트
 ## 검증과 한계
 
 - curl과 `psql`로 API와 DB를 확인했습니다. 등록 2건, 수정, 상태 변경 3회(휴직·복직·퇴직)가 이력 테이블에 1건씩 저장되고, 퇴직→재직 요청은 400으로 막히는 것을 DB에서 직접 확인했습니다. 자세한 내용은 [`docs/reports/result-checklist.md`](docs/reports/result-checklist.md)에 있습니다.
-- 브라우저 클릭 검증과 화면 캡처는 하지 않았습니다.
+- 위 화면은 임시 PostgreSQL에 가상 데이터를 넣고 띄워 캡처했습니다. 화면에서 직접 클릭해 등록·수정하는 흐름은 자동화 테스트로 확인하지 않았습니다.
 - 검색·필터는 이미 불러온 목록을 화면에서 거르는 방식입니다.
 - 로그인·권한, 배포, 대용량 페이지네이션은 범위에 넣지 않았습니다.
