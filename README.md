@@ -16,10 +16,10 @@ ERD를 바탕으로 직원 목록·등록·수정과 재직 상태 변경 이력
 
 <p align="center">
   <img src="docs/screenshots/employee-list.png" width="49%" alt="직원 목록">
-  <img src="docs/screenshots/employee-detail.png" width="49%" alt="직원 상세와 상태 변경 이력">
+  <img src="docs/screenshots/org-structure.png" width="49%" alt="조직 구조 보기">
 </p>
 <p align="center">
-  <img src="docs/screenshots/org-structure.png" width="49%" alt="조직 구조 보기">
+  <img src="docs/screenshots/employee-detail.png" width="49%" alt="직원 상세와 상태 변경 이력">
   <img src="docs/screenshots/employee-form.png" width="49%" alt="직원 등록">
 </p>
 
@@ -117,7 +117,7 @@ DB 연결과 포트는 `.env.example`을 `.env`로 복사해 설정합니다(`.e
 ddl/        스키마 DDL(테이블 4개, F_AUDIT_LOG, run_all.sql, seed.sql)
 server/     Express 백엔드(routes, controllers, services, repositories, schemas)
 client/     화면 3개(employee-list, employee-form, employee-detail)와 공통 CSS·JS
-docs/       ERD 가이드와 검증 체크리스트
+docs/       ERD 가이드, 검증 체크리스트, 화면 캡처
 ```
 
 ## 검증과 한계
